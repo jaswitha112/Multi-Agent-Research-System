@@ -1,77 +1,154 @@
-from langchain.agents import create_agent
-from langchain_ollama import ChatOllama
+import os
+from dotenv import load_dotenv
 
+from langchain.agents import create_agent
+from langchain_openrouter import ChatOpenRouter
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 from src.tools.tools import web_search, scrape_url
-from dotenv import load_dotenv
+
+
+# ============================================================
+# Load environment variables
+# ============================================================
 
 load_dotenv()
 
-# Ollama Model
-llm = ChatOllama(
-    model="qwen2.5:3b",
-    temperature=0
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+
+if not OPENROUTER_API_KEY:
+    raise ValueError(
+        "OPENROUTER_API_KEY is not set. "
+        "Add it to your .env file or Render Environment Variables."
+    )
+
+
+# ============================================================
+# OpenRouter Model
+# ============================================================
+
+llm = ChatOpenRouter(
+    model="openrouter/free",
+    temperature=0,
+    api_key=OPENROUTER_API_KEY,
+    max_retries=2,
 )
 
-# Search Agent
+
+# ============================================================
+# 1. Search Agent
+# ============================================================
+
 def build_search_agent():
+
     return create_agent(
         model=llm,
-        tools=[web_search]
+        tools=[web_search],
     )
 
-# Reader Agent
+
+# ============================================================
+# 2. Reader Agent
+# ============================================================
+
 def build_reader_agent():
+
     return create_agent(
         model=llm,
-        tools=[scrape_url]
+        tools=[scrape_url],
     )
 
 
-# Writer Chain
+# ============================================================
+# 3. Writer Chain
+# ============================================================
+
 writer_prompt = ChatPromptTemplate.from_messages([
     (
         "system",
-        "You are an expert research writer. Write clear, structured and insightful reports."
+        """
+You are an expert research writer.
+
+Write clear, structured, factual and professional research reports.
+
+Important rules:
+- Use only the research provided.
+- Do not invent facts.
+- Do not invent URLs.
+- Clearly organize the information.
+- Give at least 3 key findings.
+"""
     ),
+
     (
         "human",
-        """Write a detailed research report on the topic below.
+        """
+Write a detailed research report on the topic below.
 
-Topic: {topic}
+Topic:
+{topic}
 
 Research Gathered:
 {research}
 
-Structure the report as:
-- Introduction
-- Key Findings (minimum 3 well-explained points)
-- Conclusion
-- Sources (list all URLs found in the research)
+Use this structure:
 
-Be detailed, factual and professional."""
+# Introduction
+
+# Key Findings
+
+1. Finding 1
+2. Finding 2
+3. Finding 3
+
+# Conclusion
+
+# Sources
+
+List all URLs that appear in the research.
+
+Be factual, detailed and professional.
+"""
     ),
 ])
+
 
 writer_chain = writer_prompt | llm | StrOutputParser()
 
 
-# Critic Chain
+# ============================================================
+# 4. Critic Chain
+# ============================================================
+
 critic_prompt = ChatPromptTemplate.from_messages([
     (
         "system",
-        "You are a sharp and constructive research critic. Be honest and specific."
+        """
+You are a sharp and constructive research critic.
+
+Evaluate the report for:
+
+- factual quality
+- completeness
+- clarity
+- logical consistency
+- source quality
+
+Be honest and specific.
+"""
     ),
+
     (
         "human",
-        """Review the research report below and evaluate it strictly.
+        """
+Review the research report below.
 
 Report:
+
 {report}
 
-Respond in this exact format:
+Respond using exactly this structure:
 
 Score: X/10
 
@@ -84,8 +161,10 @@ Areas to Improve:
 - ...
 
 One line verdict:
-..."""
+...
+"""
     ),
 ])
+
 
 critic_chain = critic_prompt | llm | StrOutputParser()

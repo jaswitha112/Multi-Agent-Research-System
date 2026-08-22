@@ -486,7 +486,7 @@ if st.session_state.running and not st.session_state.done:
         sr = search_agent.invoke({
             "messages": [
                 ("user",
-                 f"Find recent, reliable and detailed information about: {topic_val}")
+                f"Find recent, reliable and detailed information about: {topic_val}")
             ]
         })
 
