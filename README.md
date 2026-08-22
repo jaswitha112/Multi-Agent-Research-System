@@ -1,79 +1,79 @@
 # LangChain Multi-Agent Research System
 
-An open-source research assistant that uses specialized LangChain agents to search the web, extract useful source content, write a structured report, and review the result with an AI critic.
+An open-source research assistant that combines specialized LangChain agents with web search and content extraction. Given a topic, it finds relevant sources, reads a selected source, drafts a structured report, and reviews the report with an AI critic.
 
-The project includes a Streamlit interface for interactive research and a Python pipeline entry point for scripted runs.
+The project provides both a Streamlit interface for interactive research and a Python entry point for scripted runs.
 
 ## Features
 
-- Web search with Tavily, returning recent sources, URLs, and snippets.
-- Dedicated reader agent that selects and scrapes a relevant source.
-- Local LLM inference through Ollama.
-- Structured report generation with sources, key findings, and a conclusion.
-- Critic pass that scores the report and identifies strengths and improvements.
-- Streamlit UI with progress states, raw research output, report download, and critic feedback.
+- Search the web with Tavily and collect titles, URLs, and snippets.
+- Select and scrape a relevant source with a dedicated reader agent.
+- Generate a structured report with an OpenRouter chat model.
+- Review the report for factual quality, completeness, clarity, consistency, and source quality.
+- Display progress, research output, the final report, and critic feedback in Streamlit.
 
 ## Architecture
 
-The research workflow is a sequential pipeline:
+The application uses a sequential four-stage pipeline. `run_research_pipeline` coordinates the workflow and stores each stage in a shared state dictionary.
 
 ```text
 User topic
-	|
-	v
-Search Agent -- Tavily web search --> Search results
-	|
-	v
-Reader Agent -- requests + content extraction --> Scraped content
-	|
-	v
-Writer chain -- Ollama LLM --> Research report
-	|
-	v
-Critic chain -- Ollama LLM --> Score and feedback
+    |
+    v
+Search agent -- web_search --> Tavily results
+    |
+    v
+Reader agent -- scrape_url --> Extracted source content
+    |
+    v
+Writer chain -- OpenRouter --> Structured research report
+    |
+    v
+Critic chain -- OpenRouter --> Score, strengths, and improvements
 ```
 
-### Project layout
+### Project structure
 
 ```text
 .
-├── app.py                    # Streamlit application
+├── app.py                    # Streamlit interface
 ├── main.py                   # Scripted pipeline example
 ├── requirements.txt          # Python dependencies
 └── src/
-	├── agents/agents.py      # Agents, prompts, and LangChain chains
-	├── pipelines/pipeline.py # End-to-end research orchestration
-	└── tools/tools.py        # Tavily search and URL scraping tools
+    ├── agents/agents.py      # Agents, prompts, and LangChain chains
+    ├── pipelines/pipeline.py # End-to-end workflow orchestration
+    └── tools/tools.py        # Tavily search and URL scraping tools
 ```
 
-## Technologies
+## Technology stack
 
-- **Python** - Application runtime
+- **Python 3.10+** - Application runtime
+- **LangChain** - Agent creation, prompts, tools, and output parsing
+- **OpenRouter** - Chat model access through `langchain-openrouter`
 - **Streamlit** - Interactive web interface
-- **LangChain** - Agent and prompt orchestration
-- **Ollama** - Local model serving
-- **Qwen 2.5 3B** - Default local model (`qwen2.5:3b`)
 - **Tavily** - Web search API
-- **Requests, Trafilatura, Readability, Beautiful Soup** - Fetching and extracting readable web content
-- **python-dotenv** - Environment variable loading
-- **Rich** - Terminal output formatting
+- **Requests** - HTTP requests for source pages
+- **Trafilatura, Readability, Beautiful Soup** - HTML content extraction and cleanup
+- **python-dotenv** - Loading local environment variables from `.env`
+- **Rich** - Optional terminal logging and formatting support
 
 ## Requirements
 
 - Python 3.10 or newer
-- [Ollama](https://ollama.com/download) installed and running
-- A Tavily API key
+- An [OpenRouter](https://openrouter.ai/) API key
+- A [Tavily](https://tavily.com/) API key
+- Internet access for search and source retrieval
 
 ## Installation
 
-1. Clone the repository and enter the project directory:
+1. Clone the repository:
 
    ```bash
    git clone <repository-url>
    cd LangChain-Multi-Agent-Research-System
    ```
 
-2. Create and activate a virtual environment:
+2. Create and activate a virtual environment.
 
    **Windows PowerShell:**
 
@@ -89,48 +89,43 @@ Critic chain -- Ollama LLM --> Score and feedback
    source .venv/bin/activate
    ```
 
-3. Install the dependencies:
+3. Install the project dependencies:
 
    ```bash
-   pip install -r requirements.txt
-   pip install langchain-ollama
+   python -m pip install --upgrade pip
+   python -m pip install -r requirements.txt
    ```
 
-4. Download the default Ollama model:
-
-   ```bash
-   ollama pull qwen2.5:3b
-   ```
-
-5. Create a `.env` file in the project root:
+4. Create a `.env` file in the project root:
 
    ```env
+   OPENROUTER_API_KEY=your_openrouter_api_key
    TAVILY_API_KEY=your_tavily_api_key
    ```
 
-   Get a key from [Tavily](https://tavily.com/). Keep `.env` private and do not commit it.
+   Keep this file private and never commit API keys to source control.
 
 ## Usage
 
 ### Streamlit application
 
-Start the interactive research assistant with:
+Start the interactive application:
 
 ```bash
 streamlit run app.py
 ```
 
-Then enter a research topic in the browser and run the pipeline.
+Streamlit will print a local URL. Open it in your browser, enter a research topic, and run the pipeline.
 
 ### Python pipeline
 
-Run the example topic from `main.py` with:
+Run the example topic in `main.py`:
 
 ```bash
 python main.py
 ```
 
-For custom integrations, import `run_research_pipeline`:
+Use the pipeline from another Python module:
 
 ```python
 from src.pipelines.pipeline import run_research_pipeline
@@ -142,24 +137,29 @@ print(result["feedback"])
 
 ## Configuration
 
-The default model is configured in `src/agents/agents.py`:
+The default OpenRouter model is configured in `src/agents/agents.py`:
 
 ```python
-ChatOllama(model="qwen2.5:3b", temperature=0)
+ChatOpenRouter(model="openrouter/free", temperature=0)
 ```
 
-Change the model name there after pulling the corresponding model with Ollama.
+To use a different OpenRouter-supported model, update the `model` value and confirm that the model is available to your account.
 
-## Notes and limitations
+## Limitations
 
-- Search and scraping require network access.
-- Tavily usage is subject to the limits of your Tavily account.
-- Some websites may block automated requests or return content that cannot be cleanly extracted.
-- Generated reports should be checked against the linked sources before being used for important decisions.
+- Search and scraping require network access and valid API keys.
+- Tavily and OpenRouter usage may be subject to account limits or costs.
+- Some websites block automated requests or do not expose content that can be extracted reliably.
+- Generated reports can contain errors and should be checked against the linked sources before being used for important decisions.
 
 ## Contributing
 
-Contributions are welcome. Please open an issue to discuss a significant change before submitting a pull request. Keep changes focused, document new configuration, and include a clear description of how the change was tested.
+Contributions are welcome. To contribute:
+
+1. Open an issue for bugs, questions, or larger proposals.
+2. Create a focused branch for your change.
+3. Keep secrets out of commits and document any new configuration.
+4. Test the Streamlit app or Python pipeline locally and describe the checks in your pull request.
 
 ## License
 
