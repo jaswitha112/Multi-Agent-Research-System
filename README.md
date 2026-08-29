@@ -33,6 +33,13 @@ Writer chain -- OpenRouter --> Structured research report
 Critic chain -- OpenRouter --> Score, strengths, and improvements
 ```
 
+Agent Responsibilities
+Search Agent: Discovers relevant information across the web using Tavily
+Reader Agent: Extracts clean, readable content from URLs
+Writer Chain: Composes structured, professional research reports
+Critic Chain: Evaluates reports and provides improvement suggestions
+
+
 ### Project structure
 
 ```text
