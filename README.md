@@ -1,4 +1,4 @@
-# LangChain Multi-Agent Research System
+# Multi-Agent Research System
 
 An open-source research assistant that combines specialized LangChain agents with web search and content extraction. Given a topic, it finds relevant sources, reads a selected source, drafts a structured report, and reviews the report with an AI critic.
 
