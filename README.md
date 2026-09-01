@@ -82,7 +82,7 @@ Critic chain -- OpenRouter --> Score, strengths, and improvements
 1️⃣ Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/Multi-Agent-Research-System.git
+   git clone https://github.com/jaswitha112/Multi-Agent-Research-System.git
    cd LangChain-Multi-Agent-Research-System
    ```
 
