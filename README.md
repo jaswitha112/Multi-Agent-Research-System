@@ -177,6 +177,5 @@ Contributions are welcome. To contribute:
 Special thanks to the developers and communities behind LangChain, Tavily, OpenRouter, Streamlit, and other open-source tools used in this project.
 
 
-## License
-
-This project is distributed under the terms of the [MIT License](LICENSE).
+## 📄 License
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
