@@ -1,6 +1,7 @@
 #  🔍  Multi-Agent Research System
 
 🚀 **Live Demo:** [Multi-Agent Research System](https://langchain-multi-agent-research-system-sfu2.onrender.com/)
+
  🌐 Deployment Platform: Render
 
 An open-source research assistant that combines specialized LangChain agents with web search and content extraction. Given a topic, it finds relevant sources, reads a selected source, drafts a structured report, and reviews the report with an AI critic.
