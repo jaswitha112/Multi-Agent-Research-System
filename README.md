@@ -34,7 +34,7 @@ Writer chain -- OpenRouter --> Structured research report
 Critic chain -- OpenRouter --> Score, strengths, and improvements
 ```
 
-Agent Responsibilities
+### Agent Responsibilities
 
 - Search Agent: Discovers relevant information across the web using Tavily
 
