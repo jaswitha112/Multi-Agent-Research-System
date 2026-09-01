@@ -2,6 +2,8 @@
 
 An open-source research assistant that combines specialized LangChain agents with web search and content extraction. Given a topic, it finds relevant sources, reads a selected source, drafts a structured report, and reviews the report with an AI critic.
 
+🚀 **Live Demo:** [Multi-Agent Research System](https://langchain-multi-agent-research-system-sfu2.onrender.com/)
+
 The project provides both a Streamlit interface for interactive research and a Python entry point for scripted runs.
 
 
